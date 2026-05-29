@@ -1,0 +1,464 @@
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import logoAeC from '@/assets/logo-aec-white.png';
+import logoIntegrar from '@/assets/LOGO.png';
+import bgLeft from '@/assets/bg-left.png';
+import bgRight from '@/assets/bg-right.png';
+import { Sun, Moon, Lock, Menu, X } from 'lucide-react';
+import { getCurrentUser, getActiveEvent } from '@/utils/api';
+
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+// Theme Toggle Hook
+const useTheme = () => {
+  const [isDark, setIsDark] = React.useState(false);
+
+  React.useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [isDark]);
+
+  return { isDark, toggle: () => setIsDark(!isDark) };
+};
+
+// Gradient Button Component
+export const GradientButton = ({
+  text,
+  onClick,
+  className = "",
+  disabled = false,
+  type = "button",
+  variant = "primary"
+}: {
+  text: string;
+  onClick?: () => void;
+  className?: string;
+  disabled?: boolean;
+  type?: "button" | "submit";
+  variant?: "primary" | "secondary";
+}) => {
+  const gradients = {
+    primary: "bg-gradient-to-r from-primary via-primary to-secondary",
+    secondary: "bg-gradient-to-r from-secondary to-primary",
+  };
+
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        w-full py-3 md:py-4 px-6 md:px-8 rounded-full text-white font-black text-base md:text-lg
+        ${gradients[variant]}
+        hover:brightness-110 hover:scale-[1.03] hover:shadow-2xl
+        active:scale-[0.98]
+        transition-all duration-300 ease-out
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+        shadow-xl
+        ${className}
+      `}
+    >
+      {text}
+    </button>
+  );
+};
+
+// Gradient Input Component
+export const GradientInput = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text"
+}: {
+  label?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  type?: string;
+}) => {
+  return (
+    <div className="flex flex-col mb-5 w-full text-left">
+      {label && (
+        <label className="text-foreground font-medium mb-2 text-sm tracking-wide">
+          {label}
+        </label>
+      )}
+      <div className="relative group p-[2px] rounded-xl bg-gradient-to-r from-primary to-secondary">
+        <input
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className="relative w-full py-3 md:py-4 px-4 md:px-5 rounded-[10px] outline-none bg-white dark:bg-gray-900 text-foreground 
+            placeholder:text-muted-foreground/70 shadow-sm text-sm md:text-base
+            transition-all duration-300"
+        />
+      </div>
+    </div>
+  );
+};
+
+import logoAeCColor from '@/assets/aec-logo-original.png';
+
+interface IntegrarLogoProps {
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+}
+
+export const IntegrarLogo: React.FC<IntegrarLogoProps> = ({ size = 'md', className = '' }) => {
+  const heightClass = size === 'sm' ? 'h-9' : size === 'lg' ? 'h-20' : 'h-13';
+
+  return (
+    <div className={`flex justify-center items-center select-none py-4 ${className}`}>
+      <img
+        src={logoIntegrar}
+        alt="Integrar"
+        className={`${heightClass} w-auto object-contain`}
+        draggable={false}
+      />
+    </div>
+  );
+};
+
+// Animated Background Component
+const AnimatedBackground = () => (
+  <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+    <div className="absolute top-0 -left-4 w-72 h-72 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+    <div className="absolute top-0 -right-4 w-72 h-72 bg-secondary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+    <div className="absolute -bottom-8 left-20 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+    {/* Overlay to keep it subtle */}
+    <div className="absolute inset-0 bg-background/50 backdrop-blur-3xl"></div>
+  </div>
+);
+
+// Geometric Background Component
+const GeometricBackground = () => (
+  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-white">
+    {/* Camada de Profundidade Superior */}
+    <div className="absolute inset-0 bg-gradient-to-b from-black/[0.02] to-transparent h-40" />
+    
+    {/* Arte Lado Esquerdo */}
+    <div 
+      className="absolute left-0 top-0 bottom-0 w-[45%] md:w-[35%] opacity-90 animate-fade-in"
+      style={{
+        backgroundImage: `url(${bgLeft})`,
+        backgroundSize: 'contain',
+        backgroundPosition: 'left center',
+        backgroundRepeat: 'no-repeat',
+        filter: 'drop-shadow(10px 0 20px rgba(0,0,0,0.03))'
+      }}
+    />
+    
+    {/* Arte Lado Direito */}
+    <div 
+      className="absolute right-0 top-0 bottom-0 w-[45%] md:w-[35%] opacity-100 animate-fade-in"
+      style={{
+        backgroundImage: `url(${bgRight})`,
+        backgroundSize: 'contain',
+        backgroundPosition: 'right center',
+        backgroundRepeat: 'no-repeat',
+        filter: 'drop-shadow(-10px 0 20px rgba(0,0,0,0.05))'
+      }}
+    />
+
+    {/* Gradiente Central para Focar no Conteúdo */}
+    <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-white opacity-40" />
+  </div>
+);
+
+// Main Layout Component
+export const Layout = ({ 
+  children, 
+  showLogo = true, 
+  className = "", 
+  hideBackground = false,
+  variant = "default",
+  isScrollytelling = false,
+  fullBleed = false
+}: { 
+  children: React.ReactNode; 
+  showLogo?: boolean; 
+  className?: string;
+  hideBackground?: boolean;
+  variant?: 'default' | 'geometric';
+  isScrollytelling?: boolean;
+  fullBleed?: boolean;
+}) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isDark, toggle } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isLocationWarningOpen, setIsLocationWarningOpen] = React.useState(false);
+  const [keyword, setKeyword] = React.useState("");
+  const [targetPath, setTargetPath] = React.useState("");
+  const [expectedKeyword, setExpectedKeyword] = React.useState("");
+  const [isScrolled, setIsScrolled] = React.useState(false);
+  const [activeKeyword, setActiveKeyword] = React.useState("");
+
+  React.useEffect(() => {
+    const fetchKeyword = async () => {
+      try {
+        const event = await getActiveEvent();
+        if (event) setActiveKeyword(event.keyword);
+      } catch (err) {
+        console.error("Error fetching keyword for menu:", err);
+      }
+    };
+    fetchKeyword();
+  }, []);
+
+  React.useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const handleAccess = () => {
+    if (keyword.toLowerCase() === expectedKeyword.toLowerCase()) {
+      navigate(targetPath);
+      setIsDialogOpen(false);
+      setKeyword("");
+      setTargetPath("");
+      setExpectedKeyword("");
+    } else {
+      toast.error("Palavra-chave incorreta!");
+    }
+  };
+
+  const navItems = [
+    { label: 'Início', path: '/' },
+    { label: 'Check-in', path: '/checkin', locationRequired: true },
+    { label: 'Nuvem de Palavras', path: '/nuvem', requiredKeyword: activeKeyword },
+    { label: 'Avaliação', path: '/avaliacao', requiredKeyword: activeKeyword },
+    { label: 'Galeria', path: '/galeria', requiredKeyword: activeKeyword },
+  ];
+
+  const handleNavClick = (item: { label: string, path: string, requiredKeyword?: string, locationRequired?: boolean }) => {
+    if (item.requiredKeyword) {
+      setTargetPath(item.path);
+      setExpectedKeyword(item.requiredKeyword);
+      setIsMenuOpen(false);
+      setIsDialogOpen(true);
+    } else if (item.locationRequired) {
+      if (getCurrentUser()) {
+        navigate(item.path);
+        setIsMenuOpen(false);
+      } else {
+        setTargetPath(item.path);
+        setIsMenuOpen(false);
+        setIsLocationWarningOpen(true);
+      }
+    } else {
+      navigate(item.path);
+      setIsMenuOpen(false);
+    }
+  };
+
+  const isActive = (path: string) => location.pathname === path;
+
+  const isGeometric = variant === 'geometric';
+  const actualHideBg = hideBackground || isGeometric;
+  const actualShowLogo = isGeometric ? false : showLogo;
+
+  return (
+    <div className={`min-h-screen relative flex flex-col ${actualHideBg ? "bg-white" : "bg-background"} ${className}`}>
+      {isGeometric && <GeometricBackground />}
+      {/* Header — fixed overlay, floats above content */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'bg-primary/95 backdrop-blur-md shadow-lg' : 'bg-gradient-to-r from-primary to-primary/90'}`}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 py-5 flex justify-between items-center">
+          {/* Logo */}
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 sm:gap-3 group shrink-0">
+            <img
+              src={logoAeC}
+              alt="AEC Logo"
+              className="h-10 sm:h-12 md:h-14 w-auto transition-transform group-hover:scale-105"
+            />
+          </button>
+
+          {/* Navigation */}
+          <nav className="hidden lg:flex items-center space-x-10">
+            {navItems.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => handleNavClick(item)}
+                className={`text-sm font-semibold tracking-wide transition-all duration-200 relative
+                  ${isActive(item.path) ? 'opacity-100' : 'opacity-80 hover:opacity-100'}
+                  text-white hover:text-white
+                  after:content-[''] after:absolute after:bottom-[-6px] after:left-0 after:right-0
+                  after:h-[2px] after:transition-transform after:duration-300
+                  after:bg-white/80
+                  ${isActive(item.path) ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}
+                `}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+
+          {/* Mobile Menu Button - Left Aligned to clear space for logo if needed, or right aligned with actions */}
+          <div className="flex items-center gap-2 lg:hidden order-3">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-full transition-colors bg-white/20 hover:bg-white/30 text-white"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+
+          {/* Actions Area */}
+          <div className="flex items-center gap-2">
+            {/* Admin Button */}
+            <button
+              onClick={() => navigate('/admin')}
+              className="p-2 rounded-full transition-colors bg-white/20 hover:bg-white/30 text-white"
+              title="Acesso Administrativo"
+            >
+              <Lock className="w-5 h-5" />
+            </button>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggle}
+              className="p-2 rounded-full transition-colors bg-white/20 hover:bg-white/30 text-white"
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div
+        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
+      >
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          onClick={() => setIsMenuOpen(false)}
+        />
+
+        {/* Menu Content */}
+        <nav
+          className={`absolute top-[64px] left-0 right-0 bg-gradient-to-r from-primary to-primary/90 border-b border-white/20 shadow-xl transition-all duration-300 transform ${isMenuOpen ? 'translate-y-0' : '-translate-y-10'
+            }`}
+        >
+          <div className="flex flex-col p-4 space-y-2">
+            {navItems.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => handleNavClick(item)}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center justify-between
+                  ${isActive(item.path)
+                    ? 'bg-white text-primary font-bold shadow-sm'
+                    : 'text-white hover:bg-white/10'
+                  }
+                `}
+              >
+                <span className="text-lg">{item.label}</span>
+                {isActive(item.path) && <div className="w-2 h-2 rounded-full bg-primary" />}
+              </button>
+            ))}
+          </div>
+        </nav>
+      </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-white">
+          <DialogHeader>
+            <DialogTitle>Acesso Restrito</DialogTitle>
+            <DialogDescription>
+              Digite a palavra-chave para acessar esta área.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2">
+            <div className="grid flex-1 gap-2">
+              <Input
+                id="keyword"
+                placeholder="Palavra-chave"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAccess();
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <Button type="button" variant="secondary" onClick={() => setIsDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="button" onClick={handleAccess}>
+              Acessar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isLocationWarningOpen} onOpenChange={setIsLocationWarningOpen}>
+        <DialogContent className="sm:max-w-md bg-white">
+          <DialogHeader>
+            <DialogTitle>Localização Necessária</DialogTitle>
+            <DialogDescription>
+              Para realizar o check-in, é necessário ativar a localização do seu dispositivo.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-start">
+            <Button type="button" variant="secondary" onClick={() => setIsLocationWarningOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="button" onClick={() => {
+              setIsLocationWarningOpen(false);
+              navigate(targetPath);
+            }}>
+              Continuar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Main Content */}
+      <main className={`flex-grow flex flex-col items-center justify-start z-10 relative 
+        ${fullBleed ? 'pt-0 px-0' : (actualShowLogo ? 'pt-20 md:pt-24 px-4 pb-8' : (isGeometric ? 'pt-24 md:pt-28 px-4 pb-8' : 'pt-28 md:pt-36 px-4 pb-8'))}`}>
+        {actualShowLogo && (
+          <div className="mb-6 animate-fade-in">
+            <IntegrarLogo />
+          </div>
+        )}
+        {children}
+      </main>
+
+      {/* Animated Background */}
+      {!hideBackground && <AnimatedBackground />}
+    </div>
+  );
+};
+
+// Glass Card Component
+export const GlassCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div className={`relative p-[2px] rounded-xl bg-gradient-to-r from-primary to-secondary shadow-md hover:shadow-lg transition-shadow duration-300 ${className}`}>
+    <div className="bg-white dark:bg-gray-900 rounded-[10px] p-5 md:p-8 h-full w-full">
+      {children}
+    </div>
+  </div>
+);
