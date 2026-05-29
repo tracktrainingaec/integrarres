@@ -144,10 +144,8 @@ const Index = () => {
             </button>
             <video 
               src="/11 anos.mp4" 
-              autoPlay 
               controls
               loop 
-              muted 
               playsInline
               className="w-full h-auto rounded-3xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.6)]"
             />
