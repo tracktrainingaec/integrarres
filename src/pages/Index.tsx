@@ -145,6 +145,7 @@ const Index = () => {
             <video 
               src="/11 anos.mp4" 
               autoPlay 
+              controls
               loop 
               muted 
               playsInline
