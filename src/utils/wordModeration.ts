@@ -8,7 +8,11 @@ const bannedWords = [
 
 export const isWordAllowed = (word: string): boolean => {
   const normalizedWord = word.toLowerCase().trim();
-  if (bannedWords.some(banned => normalizedWord.includes(banned))) return false;
+  // Match whole word only to avoid false positives (e.g., "cultura" blocked due to "cu")
+  if (bannedWords.some(banned => {
+    const regex = new RegExp(`\\b${banned}\\b`, 'i');
+    return regex.test(normalizedWord);
+  })) return false;
   return true;
 };
 
