@@ -42,19 +42,19 @@ const CloudPage = () => {
 
   return (
     <Layout variant="geometric">
-      <div className="w-full max-w-4xl mx-auto space-y-4 animate-fade-in">
+      <div className="w-full max-w-md mx-auto flex flex-col justify-center items-center min-h-[60vh] space-y-8 px-4 animate-fade-in">
         {/* Header */}
-        <div className="text-center space-y-1">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+        <div className="text-center space-y-3">
+          <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-none">
             Nuvem de Palavras
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-base sm:text-lg text-slate-600 font-semibold max-w-[320px] mx-auto leading-relaxed">
             Envie uma palavra que representa sua experiência!
           </p>
         </div>
 
         {/* Input Form */}
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto px-2">
+        <form onSubmit={handleSubmit} className="w-full">
           <div className="flex gap-2 sm:gap-3 items-end">
             <div className="flex-grow">
               <GradientInput
