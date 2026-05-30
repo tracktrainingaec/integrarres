@@ -220,7 +220,7 @@ export const Layout = ({
   }, []);
 
   const handleAccess = () => {
-    if (keyword.toLowerCase() === expectedKeyword.toLowerCase()) {
+    if (keyword.trim().toLowerCase() === expectedKeyword.trim().toLowerCase()) {
       navigate(targetPath);
       setIsDialogOpen(false);
       setKeyword("");
