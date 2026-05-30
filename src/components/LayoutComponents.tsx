@@ -236,7 +236,6 @@ export const Layout = ({
     { label: 'Check-in', path: '/checkin', locationRequired: true },
     { label: 'Nuvem de Palavras', path: '/nuvem', requiredKeyword: FIXED_KEYWORD },
     { label: 'Avaliação', path: '/avaliacao', requiredKeyword: FIXED_KEYWORD },
-    { label: 'Galeria', path: '/galeria', requiredKeyword: FIXED_KEYWORD },
   ];
 
   const handleNavClick = (item: { label: string, path: string, requiredKeyword?: string, locationRequired?: boolean }) => {
