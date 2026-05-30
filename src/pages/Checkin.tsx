@@ -50,8 +50,8 @@ const Checkin = () => {
 
     let locationData = { latitude: null as number | null, longitude: null as number | null };
 
+    // Try to get location — optional, does not block check-in if unavailable
     try {
-      // Attempt to get location with timeout - MANDATORY
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         if (!navigator.geolocation) {
           reject(new Error("Geolocation not supported"));
@@ -60,7 +60,7 @@ const Checkin = () => {
         navigator.geolocation.getCurrentPosition(
           resolve,
           (err) => reject(err),
-          { timeout: 10000, enableHighAccuracy: true } // 10s timeout, HIGH accuracy required
+          { timeout: 5000, enableHighAccuracy: false }
         );
       });
 
@@ -71,16 +71,8 @@ const Checkin = () => {
         };
       }
     } catch (error: any) {
-      console.warn("Location access denied or error:", error);
-      setLoading(false);
-
-      let msg = "É obrigatório permitir a localização para fazer check-in.";
-      if (error.code === 1) msg = "Permissão de localização negada. Ative para continuar.";
-      else if (error.code === 2) msg = "Localização indisponível. Verifique seu GPS/Wi-fi.";
-      else if (error.code === 3) msg = "Tempo esgotado ao buscar localização. Tente novamente.";
-
-      toast.error(msg);
-      return; // BLOCK CHECK-IN
+      // Location is optional — just log and continue
+      console.warn("Location not available, proceeding without it:", error);
     }
 
     try {
@@ -104,7 +96,6 @@ const Checkin = () => {
       navigate('/menu');
     } catch (error: any) {
       console.error("Check-in error:", error);
-      // Show more specific error message if available
       const errorMessage = error.message || "Erro desconhecido";
       toast.error(`Erro ao realizar check-in: ${errorMessage}`);
     } finally {
