@@ -313,10 +313,23 @@ export const createEvent = async (event: Omit<Event, 'id' | 'created_at'>) => {
 };
 
 export const setActiveEvent = async (id: string) => {
-    const { data, error } = await supabase
-        .rpc('set_active_event', { target_id: id });
+    // Step 1: Deactivate all events
+    const { error: deactivateError } = await supabase
+        .from('events')
+        .update({ active: false })
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // matches all rows
 
-    if (error) throw error;
+    if (deactivateError) throw deactivateError;
+
+    // Step 2: Activate the target event
+    const { data, error: activateError } = await supabase
+        .from('events')
+        .update({ active: true })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (activateError) throw activateError;
     return data;
 };
 
