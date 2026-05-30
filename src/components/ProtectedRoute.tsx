@@ -9,8 +9,9 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     const user = getCurrentUser();
+    const isAdmin = localStorage.getItem('admin_session') === 'true';
 
-    if (!user) {
+    if (!user && !isAdmin) {
         toast.error("Por favor, faça o check-in primeiro.");
         return <Navigate to="/checkin" replace />;
     }
@@ -19,3 +20,4 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 };
 
 export default ProtectedRoute;
+

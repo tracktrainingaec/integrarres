@@ -138,6 +138,7 @@ const DashboardPage = () => {
 
     if (email === VALID_EMAIL && pwd === VALID_PWD) {
       setAuth(true);
+      localStorage.setItem('admin_session', 'true');
       toast.success("Login realizado com sucesso");
     } else {
       toast.error("Credenciais inválidas");
