@@ -209,19 +209,9 @@ export const Layout = ({
   const [targetPath, setTargetPath] = React.useState("");
   const [expectedKeyword, setExpectedKeyword] = React.useState("");
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const [activeKeyword, setActiveKeyword] = React.useState("");
 
-  React.useEffect(() => {
-    const fetchKeyword = async () => {
-      try {
-        const event = await getActiveEvent();
-        if (event) setActiveKeyword(event.keyword);
-      } catch (err) {
-        console.error("Error fetching keyword for menu:", err);
-      }
-    };
-    fetchKeyword();
-  }, []);
+  // Fixed keyword for all restricted pages
+  const FIXED_KEYWORD = "integrar";
 
   React.useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 40);
@@ -244,9 +234,9 @@ export const Layout = ({
   const navItems = [
     { label: 'Início', path: '/' },
     { label: 'Check-in', path: '/checkin', locationRequired: true },
-    { label: 'Nuvem de Palavras', path: '/nuvem', requiredKeyword: activeKeyword },
-    { label: 'Avaliação', path: '/avaliacao', requiredKeyword: activeKeyword },
-    { label: 'Galeria', path: '/galeria', requiredKeyword: activeKeyword },
+    { label: 'Nuvem de Palavras', path: '/nuvem', requiredKeyword: FIXED_KEYWORD },
+    { label: 'Avaliação', path: '/avaliacao', requiredKeyword: FIXED_KEYWORD },
+    { label: 'Galeria', path: '/galeria', requiredKeyword: FIXED_KEYWORD },
   ];
 
   const handleNavClick = (item: { label: string, path: string, requiredKeyword?: string, locationRequired?: boolean }) => {
